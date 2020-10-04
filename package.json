@@ -1,0 +1,25 @@
+{
+  "name": "fugu-examples",
+  "version": "1.0.0",
+  "description": "Examples for fugu APIs",
+  "main": "server.js",
+  "scripts": {
+    "http": "node http.js",
+    "https": "node https.js",
+    "ca": "mkdir -p cert && openssl genrsa -out cert/key.pem && openssl req -new -key cert/key.pem -out cert/csr.pem -subj \"/C=YC\" && openssl x509 -req -days 9999 -in cert/csr.pem -signkey cert/key.pem -out cert/cert.pem && rm cert/csr.pem"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ragingwind/fugu-examples.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/ragingwind/fugu-examples/issues"
+  },
+  "homepage": "https://github.com/ragingwind/fugu-examples#readme",
+  "dependencies": {
+    "serve": "^11.3.2"
+  }
+}

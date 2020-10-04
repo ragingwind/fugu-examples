@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Accept-CH" content="Viewport-Width, Downlink" />
+    <title>Fugu Example - Shape Detection</title>
+  </head>
+  <body>
+    <div id="face-detection">
+      <h3>Face Detection</h3>
+      <canvas width="600" height="340" id="canvas-photo"></canvas>
+      <div>
+        <button onclick="detectFaces()">Detect Faces</button>
+      </div>
+    </div>
+    <div id="qrcode-detection">
+      <h3>QRCode Detection</h3>
+      <canvas width="340" height="340" id="canvas-qr"></canvas>
+      <div>
+        <button onclick="detectQRCode()">Detect QRCode</button>
+        <span id="result"></span>
+      </div>
+    </div>
+    <script src="../lib/help.js"></script>
+    <script>
+      let photoImage;
+      let qrcodeImage;
+
+      window.addEventListener('DOMContentLoaded', async (event) => {
+        checkAPICapabilities(['FaceDetector', 'BarcodeDetector']);
+
+        photoImage = drawImage(
+          document.querySelector('#canvas-photo'),
+          'blackpink.jpg'
+        );
+        qrcodeImage = drawImage(
+          document.querySelector('#canvas-qr'),
+          'blackpink-qr.png'
+        );
+      });
+
+      async function detectFaces() {
+        if (!('FaceDetector' in window)) {
+          alert('Face Detection not supported');
+          return;
+        }
+
+        try {
+          const faceDetector = new FaceDetector();
+          const faces = await faceDetector.detect(photoImage);
+
+          const canvas = document.querySelector('#canvas-photo');
+          const ctx = canvas.getContext('2d');
+          const scale = {
+            width: Number.parseFloat(canvas.style.width) / photoImage.width,
+            height: Number.parseFloat(canvas.style.height) / photoImage.height,
+          };
+
+          for (let face of faces) {
+            const box = face.boundingBox;
+            const rect = {
+              x: Math.floor(box.x * scale.width),
+              y: Math.floor(box.y * scale.height),
+              w: Math.floor(box.width * scale.width),
+              h: Math.floor(box.height * scale.height),
+            };
+
+            ctx.lineWidth = 2;
+            ctx.strokeStyle = 'magenta';
+            ctx.rect(rect.x, rect.y, rect.w, rect.h);
+            ctx.stroke();
+          }
+        } catch (e) {
+          console.error('Face detection failed:', e);
+        }
+      }
+
+      function appendLink(href) {
+        const result = document.querySelector('#qrcode-detection #result');
+        const link = document.createElement('a');
+        link.textContent = 'Click';
+        link.setAttribute('href', href);
+        result.appendChild(link);
+      }
+
+      async function detectQRCode() {
+        if (!('BarcodeDetector' in window)) {
+          alert('Barcode Detection is not supported');
+          return;
+        }
+
+        try {
+          const barcodeDetector = new BarcodeDetector({
+            formats: ['qr_code'],
+          });
+          const barcodes = await barcodeDetector.detect(qrcodeImage);
+
+          for (let code of barcodes) {
+            appendLink(code.rawValue);
+          }
+        } catch (e) {
+          console.error('Barcode detection failed:', e);
+        }
+      }
+    </script>
+  </body>
+</html>

@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Accept-CH" content="Viewport-Width, Downlink" />
+    <title>Fugu Example - WebShare</title>
+  </head>
+  <body>
+    <button onclick="share()">Share this site</button>
+    <div id="err"></div>
+    <script src="../lib/help.js"></script>
+    <script>
+      async function share() {
+        if (!('share' in navigator)) {
+          alert('Share is not supported');
+          return;
+        }
+
+        try {
+          const res = await navigator.share({
+            title: 'Web Share',
+            text: 'Web Share is avaiable',
+            url: window.location.href,
+          });
+        } catch (err) {
+          const isAborted = err.name && err.name === 'AbortError';
+          document.querySelector('#err').textContent = isAborted
+            ? 'Aborted'
+            : err.toString();
+        }
+      }
+    </script>
+  </body>
+</html>

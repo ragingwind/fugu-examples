@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta http-equiv="Accept-CH" content="Viewport-Width, Downlink" />
+    <title>Fugu Example - File System Access</title>
+  </head>
+  <body>
+    <div>
+      <h3>File System Access</h3>
+      <div>
+        <button onclick="openFile()">Open File</button>
+        <button onclick="saveFile()">Save File</button>
+        <button onclick="drawFrame()">Draw Frame</button>
+      </div>
+    </div>
+    <br/>
+    <canvas id="canvas" width="0" height="0"></canvas>
+    <script src="../lib/help.js"></script>
+    <script>
+      window.addEventListener('DOMContentLoaded', async (event) => {
+        checkAPICapabilities(['showSaveFilePicker', 'showOpenFilePicker']);
+      });
+
+      function drawFrame() {
+        const canvas = document.querySelector('canvas');
+        const ctx = canvas.getContext('2d');
+        const scale = window.devicePixelRatio;
+
+        ctx.lineWidth = 5;
+        ctx.strokeStyle = 'black';
+        ctx.rect(0, 0, canvas.width / scale, canvas.height / scale);
+        ctx.stroke();
+      }
+
+      async function openFile() {
+        try {
+          const opts = {
+            multiple: false,
+            types: [
+              { description: 'Image file', accept: { 'image/png': ['.png'] } },
+            ],
+          };
+          const fileHandle = await window.showOpenFilePicker();
+          const file = await fileHandle[0].getFile();
+          const reader = new FileReader();
+
+          reader.onload = () => {
+            drawImage(document.querySelector('canvas'), reader.result);
+          };
+
+          await reader.readAsDataURL(file);
+        } catch (e) {
+          console.error(e);
+        }
+      }
+
+      async function saveFile() {
+        const opts = {
+          types: [
+            { description: 'Image file', accept: { 'image/png': ['.png'] } },
+          ],
+        };
+        const handle = await window.showSaveFilePicker(opts);
+        const writable = await handle.createWritable();
+        const canvas = document.querySelector('canvas');
+
+        canvas.toBlob(async (blob) => {
+          await writable.write(blob);
+          await writable.close();
+        });
+      }
+    </script>
+  </body>
+</html>
