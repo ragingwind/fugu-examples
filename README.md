@@ -12,6 +12,12 @@ Most of APIs must be served on https, so you need to make a custom ca for this p
 npm run ca
 ```
 
+# Run
+
+```sh
+npm run https
+```
+
 # License
 
 Jimmy Moon @ MIT
